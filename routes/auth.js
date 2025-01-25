@@ -5,6 +5,7 @@ const User = require("../models/User");
 const GovtAuthority = require("../models/GovtAuthority");
 const ServiceHolder = require("../models/ServiceHolder");
 const Admin = require("../models/admin");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
@@ -162,6 +163,8 @@ router.post("/create-govt-authority", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+  console.log("Login...");
+  
   const { email, password, userType } = req.body;
   let user;
   if (userType === "Service Holder") {
@@ -192,4 +195,18 @@ router.post("/login", async (req, res) => {
     name: user.name,
   });
 });
+
+router.get("/validate-token", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ role: user.role });
+  } catch (err) {
+    res.status(500).json({ error: "Token validation failed", details: err.message });
+  }
+});
+
 module.exports = router;

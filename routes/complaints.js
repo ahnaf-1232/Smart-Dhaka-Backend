@@ -58,7 +58,13 @@ router.get("/my-complaints", authMiddleware, async (req, res) => {
       description: complaint.description,
       votes: complaint.vote?.voteCount || 0, // Default to 0 if no vote is found
       status: complaint.status,
+      lat: complaint.location.lat, // Add latitude directly
+      lng: complaint.location.lng, // Add longitude directly
+      address: complaint.location.address, // Add address directly
     }));
+
+    console.log(formattedComplaints);
+    
 
     res.json(formattedComplaints);
   } catch (err) {
@@ -87,12 +93,19 @@ router.get("/all-complaints", authMiddleware, async (req, res) => {
       votes: complaint.vote?.voteCount || 0, // Default to 0 if no vote is found
       hasVoted: complaint.vote?.userIds.includes(userId) || false, // Check if user has voted
       status: complaint.status,
+      lat: complaint.location.lat, // Add latitude directly
+      lng: complaint.location.lng, // Add longitude directly
+      address: complaint.location.address, // Add address directly
     }));
+
+    console.log(formattedComplaints);
+    
 
     res.json(formattedComplaints);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch complaints" });
   }
 });
+
 
 module.exports = router;

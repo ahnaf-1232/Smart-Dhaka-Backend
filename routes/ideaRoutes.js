@@ -40,6 +40,8 @@ router.post("/submit", authMiddleware, async (req, res) => {
 });
 
 router.get("/my-ideas", authMiddleware, async (req, res) => {
+  console.log("Fetching ideas...");
+  
     try {
       const userId = req.user.id;
   

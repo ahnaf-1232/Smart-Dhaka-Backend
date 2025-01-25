@@ -19,6 +19,7 @@ app.use('/api/voting', require('./routes/votingRoutes'));
 app.use('/api/ideas', require('./routes/ideaRoutes'));
 app.use('/api/announcements', require('./routes/announcementRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use("/api/feedbacks", require("./routes/feedbackRoutes"));
 // app.use('/utilities', require('./routes/utilities'));
 // app.use('/community', require('./routes/community'));
 // app.use('/transport', require('./routes/transport'));
