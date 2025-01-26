@@ -30,6 +30,11 @@ const serviceHolderSchema = new mongoose.Schema(
       default: "ServiceHolder",
       required: true,
     },
+    location: {
+      lat: Number,
+      lng: Number,
+      thana: String
+    }
   },
   { timestamps: true }
 );

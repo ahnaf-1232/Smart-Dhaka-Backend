@@ -5,18 +5,15 @@ const UserSchema = new mongoose.Schema(
   {
     name: String,
     email: { type: String, unique: true, required: true },
-    phone: String,
     nid: String,
-    presentAddress: String,
-    permanentAddress: String,
-    lat: Number,
-    lng: Number,
     password: String,
     role: {
       type: String,
       enum: ["Resident", "ServiceHolder", "Authority", "Admin"],
       required: true,
     },
+    thana: String,
+    houseNo: String,
   },
   { timestamps: true }
 );

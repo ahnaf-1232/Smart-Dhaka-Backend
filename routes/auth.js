@@ -15,12 +15,9 @@ router.post("/register", async (req, res) => {
     name,
     email,
     password,
-    presentAddress,
-    permanentAddress,
-    lat,
-    lng,
     nid,
-    phone,
+    thana,
+    houseNo,
     role,
   } = req.body;
 
@@ -38,12 +35,9 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password,
-      presentAddress,
-      permanentAddress,
-      lat,
-      lng,
       nid,
-      phone,
+      thana,
+      houseNo,
       role,
     });
 
@@ -90,7 +84,7 @@ router.post("/create-admin", async (req, res) => {
 });
 
 router.post("/create-service-holder", async (req, res) => {
-  const { name, email, password, phone, serviceType } = req.body;
+  const { name, email, password, phone, serviceType, thana, lat, lng } = req.body;
 
   try {
     // Validate input
@@ -108,13 +102,20 @@ router.post("/create-service-holder", async (req, res) => {
         .json({ error: "Email or phone number already exists." });
     }
 
+    console.log("Creating Service Holder...", req.body);
+    
+
     // Create the Service Holder
     const serviceHolder = new ServiceHolder({
       name,
       email,
       password,
       serviceType,
+      location: { lat, lng, thana },
     });
+
+    console.log(serviceHolder);
+    
 
     await serviceHolder.save();
     res
@@ -183,7 +184,7 @@ router.post("/login", async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   }
   const token = jwt.sign(
-    { id: user._id, role: user.role, name: user.name, email: user.email },
+    { id: user._id, role: user.role, name: user.name, email: user.email, thana: user.thana },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
