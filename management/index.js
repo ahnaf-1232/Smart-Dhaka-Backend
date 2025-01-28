@@ -9,8 +9,6 @@ app.use(bodyParser.json());
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     ssl: true,
     tlsCAFile: "./global-bundle.pem",
   })
