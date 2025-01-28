@@ -15,17 +15,11 @@ public_subnets = [
   "172.170.1.0/24",
   "172.170.2.0/24",
   "172.170.3.0/24",
-  "172.170.4.0/24",
-  "172.170.5.0/24",
-  "172.170.6.0/24",
 ]
 private_subnets = [
   "172.170.101.0/24",
   "172.170.102.0/24",
   "172.170.103.0/24",
-  "172.170.104.0/24",
-  "172.170.105.0/24",
-  "172.170.106.0/24",
 ]
 
 # EKS
@@ -42,13 +36,7 @@ scaling_min_size           = 2
 
 node_group_max_unavailable = 1
 
-iam_access_entries = [
-  {
-    policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-    principal_arn = "arn:aws:iam::038462776135:user/Ahnaf"
-  }
-  
-]
+iam_access_entries = []
 
 eks_addons = [
   {
