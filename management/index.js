@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 
 // MongoDB Connection
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect("mongodb://sdadmin:sdadmin123@sample-cluster.node.us-east-1.docdb.amazonaws.com:27017/sample-database?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false", {
     ssl: true,
     tlsCAFile: "./global-bundle.pem",
   })

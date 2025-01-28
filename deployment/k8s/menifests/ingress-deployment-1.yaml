@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name:  smart-dhaka-ingress
+  namespace: smart-dhaka-namespace
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.org/server-snippets: "gzip on;"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /map
+            pathType: Prefix
+            backend:
+              service:
+                name: map-service
+                port:
+                  number: 80
+    - http:
+        paths:
+          - path: /management
+            pathType: Prefix
+            backend:
+              service:
+                name: management-service
+                port:
+                  number: 80

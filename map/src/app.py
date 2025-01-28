@@ -214,6 +214,7 @@ def health_check():
     """
     Health check endpoint to verify if the API is running
     """
+    print("Health check")
     return jsonify({"status": "ok", "message": "API is healthy"}), 200
 
 
