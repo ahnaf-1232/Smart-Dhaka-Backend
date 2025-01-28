@@ -16,9 +16,9 @@ spec:
     spec:
       containers:
         - name: management
-          image: 863518452741.dkr.ecr.ap-south-1.amazonaws.com/smart-dhaka/management:latest
+          image: 038462776135.dkr.ecr.ap-south-1.amazonaws.com/smart-dhaka/management:latest
           ports:
-            - containerPort: 8004
+            - containerPort: 8001
           envFrom:
             - secretRef:
                 name: management-service-app-settings
@@ -40,7 +40,7 @@ spec:
   type: ClusterIP
   ports:
     - port: 80
-      targetPort: 8004
+      targetPort: 8001
       protocol: TCP
   selector:
     app: management
