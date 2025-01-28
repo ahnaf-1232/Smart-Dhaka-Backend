@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
-from config import GRAPH_DATA, SIMILARITY_THRESHOLD, K
-from models.diversified_top_k_shortest_paths import DiversifiedTopKShortestPaths
-from models.node_finder import NodeGraph
+from src.config import GRAPH_DATA, SIMILARITY_THRESHOLD, K
+from src.models.diversified_top_k_shortest_paths import DiversifiedTopKShortestPaths
+from src.models.node_finder import NodeGraph
 from dotenv import load_dotenv
 import os
 import json
@@ -33,7 +33,7 @@ def load_graph(file_path: str):
 
 graph, node_graph, raw_data = load_graph(GRAPH_DATA)
 
-with open('C:/Users/Ahnaf-1466/Documents/GitHub/Smart-Dhaka/data/raw/categorized_dataset.json', 'r', encoding='utf-8') as f:
+with open('./data/raw/categorized_dataset.json', 'r', encoding='utf-8') as f:
     category_data = json.load(f)
 
 class NearestEntityFinder:
@@ -208,7 +208,14 @@ def get_nearest_entity_only():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint to verify if the API is running
+    """
+    return jsonify({"status": "ok", "message": "API is healthy"}), 200
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8002, debug=True)

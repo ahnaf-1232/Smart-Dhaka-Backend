@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const GovtAuthority = require("../models/GovtAuthority");
 const ServiceHolder = require("../models/ServiceHolder");
-const Admin = require("../models/admin");
+const Admin = require("../models/Admin");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 const router = express.Router();

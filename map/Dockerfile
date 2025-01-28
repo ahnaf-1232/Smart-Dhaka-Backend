@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && pip install --no-cache-dir --upgrade setuptools
 COPY . .
 EXPOSE 8002
-CMD ["gunicorn", "--bind", "0.0.0.0:8002", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8002", "src.app:app"]

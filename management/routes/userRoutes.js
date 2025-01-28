@@ -1,5 +1,5 @@
 const express = require("express");
-const Admin = require("../models/admin");
+const Admin = require("../models/Admin");
 const ServiceHolder = require("../models/ServiceHolder");
 const GovtAuthority = require("../models/GovtAuthority");
 const User = require("../models/User");

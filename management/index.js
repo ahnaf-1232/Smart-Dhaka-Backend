@@ -11,6 +11,10 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.log(err));
 
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'API is healthy' });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/complaints', require('./routes/complaints'));
