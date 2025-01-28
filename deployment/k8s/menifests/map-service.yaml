@@ -22,12 +22,6 @@ spec:
           envFrom:
             - secretRef:
                 name: map-service-app-settings
-          env:
-            - name: DATABASES
-              valueFrom:
-                secretKeyRef:
-                  name: map-service-db-settings
-                  key: map-service.json
           resources:
             requests:
               memory: "256Mi"

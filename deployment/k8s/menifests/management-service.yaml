@@ -22,12 +22,6 @@ spec:
           envFrom:
             - secretRef:
                 name: management-service-app-settings
-          env:
-            - name: DATABASES
-              valueFrom:
-                secretKeyRef:
-                  name: management-service-db-settings
-                  key: management-service.json
           resources:
             requests:
               memory: "256Mi"

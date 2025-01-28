@@ -2,13 +2,17 @@ import heapq
 import googlemaps
 from typing import List, Dict, Tuple
 from functools import lru_cache
+from dotenv import load_dotenv
+import os
 
 class DiversifiedTopKShortestPaths:
     def __init__(self, graph: Dict[str, List[Tuple[str, float]]], similarity_threshold: float, k: int):
+        load_dotenv()
+        GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
         self.graph = graph
         self.similarity_threshold = similarity_threshold
         self.k = k
-        self.gmaps = googlemaps.Client(key="AIzaSyAspJAIzFtVEWwOYAoUdJU0eLGrDssz1jk")
+        self.gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
         self.edge_weights = {}
 
     def similarity(self, path1: List[str], path2: List[str]) -> float:

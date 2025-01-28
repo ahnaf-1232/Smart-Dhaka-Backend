@@ -3,7 +3,7 @@ name: Deploy to Development
 on:
   push:
     branches:
-    - production
+    - main
 
 concurrency:
   group: ${{ github.ref }}
@@ -75,7 +75,6 @@ jobs:
           K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
           K8S_MANIFEST_DIRECTORY: development
           PARAMETER_STORE_APPLICATION_SETTINGS: /smart-dhaka/map-service/map-service-settings
-          PARAMETER_STORE_DB_SETTINGS: /smart-dhaka/map-service/database-settings
 
   Secrets_for_management-service:
     runs-on: ubuntu-latest
@@ -100,7 +99,6 @@ jobs:
           K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
           K8S_MANIFEST_DIRECTORY: development
           PARAMETER_STORE_APPLICATION_SETTINGS: /smart-dhaka/management-service/management-service-settings
-          PARAMETER_STORE_DB_SETTINGS: /smart-dhaka/management-service/database-settings
 
 
   Deployment_of_map-service:

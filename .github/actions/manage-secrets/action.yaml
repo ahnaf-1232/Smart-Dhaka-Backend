@@ -39,9 +39,6 @@ inputs:
   PARAMETER_STORE_APPLICATION_SETTINGS:
     description: i.e. /bcf24-tm/payment_service/payment-service-settings
     required: true
-  PARAMETER_STORE_DB_SETTINGS:
-    description: i.e. /bcf24-tm/payment_service/database-settings
-    required: true
 
 
 runs:
@@ -64,11 +61,6 @@ runs:
       run: |
         aws ssm get-parameter --name ${{inputs.PARAMETER_STORE_APPLICATION_SETTINGS}} --with-decryption --output text --query "Parameter.Value" --region  ${{ inputs.AWS_REGION }} > ./tmp/${{inputs.SERVICE_NAME}}.env
 
-    - name: Get DB Settings in tmp directory
-      shell: bash
-      run: |
-        aws ssm get-parameter --name ${{inputs.PARAMETER_STORE_DB_SETTINGS}} --with-decryption --output text --query "Parameter.Value" --region  ${{ inputs.AWS_REGION }} > ./tmp/${{inputs.SERVICE_NAME}}.json
-
     - name: Create EKS Credential
       shell: bash
       run: |
@@ -77,7 +69,7 @@ runs:
     - name: Remove Old Secret
       shell: bash
       run: |
-        kubectl -n ${{inputs.K8S_NAMESPACE}} delete secret ${{inputs.SERVICE_NAME}}-db-settings ${{inputs.SERVICE_NAME}}-app-settings --ignore-not-found
+        kubectl -n ${{inputs.K8S_NAMESPACE}} delete secret ${{inputs.SERVICE_NAME}}-app-settings --ignore-not-found
         
     - name: Create APPLICATION Secret in k8s
       shell: bash
@@ -89,8 +81,3 @@ runs:
     #   shell: bash
     #   run: |
     #     cat ./tmp/${{inputs.SERVICE_NAME}}.env
-
-    - name: Create DB Secret in k8s
-      shell: bash
-      run: |
-        kubectl -n ${{inputs.K8S_NAMESPACE}} create secret generic ${{inputs.SERVICE_NAME}}-db-settings --from-file=./tmp/${{inputs.SERVICE_NAME}}.json
