@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: smart-dhaka-namespace
+  name: management-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management
+  template:
+    metadata:
+      labels:
+        app: management
+    spec:
+      containers:
+        - name: management
+          image: 863518452741.dkr.ecr.ap-south-1.amazonaws.com/smart-dhaka/management:latest
+          ports:
+            - containerPort: 8004
+          envFrom:
+            - secretRef:
+                name: management-service-app-settings
+          env:
+            - name: DATABASES
+              valueFrom:
+                secretKeyRef:
+                  name: management-service-db-settings
+                  key: management-service.json
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: smart-dhaka-namespace
+  name: management-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8004
+      protocol: TCP
+  selector:
+    app: management
+---
+apiVersion: autoscaling/v1  
+kind: HorizontalPodAutoscaler
+metadata:
+  namespace: smart-dhaka-namespace
+  name: management-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: management-deployment
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 85  

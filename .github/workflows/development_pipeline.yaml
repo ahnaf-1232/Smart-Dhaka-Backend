@@ -1,0 +1,155 @@
+name: Deploy to Development
+
+on:
+  push:
+    branches:
+    - production
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERSION: ${{ github.sha }}_DEVELOPMENT
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
+
+jobs:
+  
+  build-map-service:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Build image for map-service
+        uses: ./.github/actions/build-and-push
+        with:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+          VERSION: ${{ secrets.VERSION }}
+          DIRECTORY: map
+          REPOSITORY: smart-dhaka/map
+
+  build-management-service:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Build image for management-service
+        uses: ./.github/actions/build-and-push
+        with:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+          VERSION: ${{ secrets.VERSION }}
+          DIRECTORY: management
+          REPOSITORY: smart-dhaka/management
+
+
+  Secrets_for_map-service:
+    runs-on: ubuntu-latest
+    environment: development
+    needs:
+    - build-map-service
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Deploy Secrets to Development Environment of smart-dhaka in k8s for map-service
+        uses: ./.github/actions/manage-secrets
+        with:
+          SERVICE_NAME: map-service
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+          VERSION: ${{ secrets.VERSION }}
+          K8S_CLUSTER_NAME: ${{ secrets.K8S_CLUSTER_NAME }}
+          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
+          K8S_MANIFEST_DIRECTORY: development
+          PARAMETER_STORE_APPLICATION_SETTINGS: /smart-dhaka/map-service/map-service-settings
+          PARAMETER_STORE_DB_SETTINGS: /smart-dhaka/map-service/database-settings
+
+  Secrets_for_management-service:
+    runs-on: ubuntu-latest
+    environment: development
+    needs:
+    - build-management-service
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Deploy Secrets to Development Environment of smart-dhaka in k8s for management-service
+        uses: ./.github/actions/manage-secrets
+        with:
+          SERVICE_NAME: management-service
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+          VERSION: ${{ secrets.VERSION }}
+          K8S_CLUSTER_NAME: ${{ secrets.K8S_CLUSTER_NAME }}
+          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
+          K8S_MANIFEST_DIRECTORY: development
+          PARAMETER_STORE_APPLICATION_SETTINGS: /smart-dhaka/management-service/management-service-settings
+          PARAMETER_STORE_DB_SETTINGS: /smart-dhaka/management-service/database-settings
+
+
+  Deployment_of_map-service:
+    runs-on: ubuntu-latest
+    environment: development
+    needs:
+    - Secrets_for_map-service
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Deploy IMAGE to Development Environment of smart-dhaka in k8s for map-service
+        uses: ./.github/actions/deploy
+        with:
+          SERVICE_NAME: map-service
+          DEPLOYMENT_NAME: map-deployment
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+          REPOSITORY: smart-dhaka/map
+          VERSION: ${{ secrets.VERSION }}
+          K8S_CLUSTER_NAME: ${{ secrets.K8S_CLUSTER_NAME }}
+          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
+          K8S_MANIFEST_FILE: deployment/k8s/menifests/map-service.yaml
+
+  Deployment_of_management-service:
+    runs-on: ubuntu-latest
+    environment: development
+    needs:
+    - Secrets_for_management-service
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Deploy IMAGE to Development Environment of smart-dhaka in k8s for management-service
+        uses: ./.github/actions/deploy
+        with:
+          SERVICE_NAME: management-service
+          DEPLOYMENT_NAME: management-deployment
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+          REPOSITORY: smart-dhaka/management
+          VERSION: ${{ secrets.VERSION }}
+          K8S_CLUSTER_NAME: ${{ secrets.K8S_CLUSTER_NAME }}
+          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
+          K8S_MANIFEST_FILE: deployment/k8s/menifests/management-service.yaml
+
