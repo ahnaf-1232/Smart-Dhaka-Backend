@@ -209,7 +209,7 @@ def get_nearest_entity_only():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/health', methods=['GET'])
+@app.route('/', methods=['GET'])
 def health_check():
     """
     Health check endpoint to verify if the API is running

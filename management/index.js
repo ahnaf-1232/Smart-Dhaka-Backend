@@ -15,7 +15,7 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-app.get("/api/health", (req, res) => {
+app.get("/", (req, res) => {
   res.status(200).json({ status: "ok", message: "API is healthy" });
 });
 
