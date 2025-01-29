@@ -15,19 +15,19 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
-app.get("/", (req, res) => {
+app.get("/management", (req, res) => {
   res.status(200).json({ status: "ok", message: "API is healthy" });
 });
 
 // Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/complaints", require("./routes/complaints"));
-app.use("/api/voting", require("./routes/votingRoutes"));
-app.use("/api/ideas", require("./routes/ideaRoutes"));
-app.use("/api/announcements", require("./routes/announcementRoutes"));
-app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/feedbacks", require("./routes/feedbackRoutes"));
-app.use("/api/emergencyServices", require("./routes/emergencyServiceRoutes"));
+app.use("/management/api/auth", require("./routes/auth"));
+app.use("/management/api/complaints", require("./routes/complaints"));
+app.use("/management/api/voting", require("./routes/votingRoutes"));
+app.use("/management/api/ideas", require("./routes/ideaRoutes"));
+app.use("/management/api/announcements", require("./routes/announcementRoutes"));
+app.use("/management/api/users", require("./routes/userRoutes"));
+app.use("/management/api/feedbacks", require("./routes/feedbackRoutes"));
+app.use("/management/api/emergencyServices", require("./routes/emergencyServiceRoutes"));
 
 // Start Server
 const PORT = process.env.PORT || 5000;
