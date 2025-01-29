@@ -63,7 +63,7 @@ class NearestEntityFinder:
 # Initialize the finder with the category data
 entity_finder = NearestEntityFinder(category_data)
 
-@app.route('/map-data', methods=['GET'])
+@app.route('/map/map-data', methods=['GET'])
 def map_data():
     """
     Endpoint to serve nodes and edges in a format suitable for visualization
@@ -82,7 +82,7 @@ def map_data():
     return jsonify({"nodes": nodes, "edges": edges})
 
 
-@app.route('/shortest-paths', methods=['GET'])
+@app.route('/map/shortest-paths', methods=['GET'])
 def shortest_paths():
     """
     Endpoint to get the best shortest path based on live data from OpenStreetMap
@@ -125,7 +125,7 @@ def shortest_paths():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-@app.route('/nearest-entity', methods=['GET'])
+@app.route('/map/nearest-entity', methods=['GET'])
 def get_nearest_entity_and_shortest_path():
     try:
         # Get latitude, longitude, and category from the request
@@ -185,7 +185,7 @@ def get_nearest_entity_and_shortest_path():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-@app.route('/find-nearest-entity-only', methods=['GET'])
+@app.route('/map/find-nearest-entity-only', methods=['GET'])
 def get_nearest_entity_only():
     try:
         # Get latitude, longitude, and category from the request
@@ -209,7 +209,7 @@ def get_nearest_entity_only():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/', methods=['GET'])
+@app.route('/map', methods=['GET'])
 def health_check():
     """
     Health check endpoint to verify if the API is running
