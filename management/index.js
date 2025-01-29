@@ -8,10 +8,7 @@ app.use(bodyParser.json());
 
 // MongoDB Connection
 mongoose
-  .connect("mongodb://sdadmin:sdadmin123@sample-cluster.node.us-east-1.docdb.amazonaws.com:27017/sample-database?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false", {
-    ssl: true,
-    tlsCAFile: "./global-bundle.pem",
-  })
+  .connect("mongodb+srv://bsse1232:Nhmmx20mBO3r5CnT@smart-dhaka.jlhmh.mongodb.net/smart-dhaka")
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
