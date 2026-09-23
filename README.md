@@ -1,104 +1,336 @@
-A repository for Buet DevOps Hackathon 2024.
+# Smart Dhaka — Backend & DevOps Infrastructure
 
-*Project name:* Railway Ticket Management.
-*Handled By:* Ops Optimizers-DU
+A containerized backend and AWS/Kubernetes deployment setup for a scalable railway ticket-management system developed for the **BUET DevOps Hackathon 2024** by **Ops Optimizers-DU**.
 
-Problem Statement: https://docs.google.com/document/u/1/d/10rDnv2WKcg69sLKj3N6XG24tPgw7GnaXdtYRFAmAqjE/mobilebasic
+The repository contains both application services and the infrastructure/automation required to build, configure, and deploy them.
 
-_Develop a scalable and robust system that can handle lots of traffic and ensure a smooth flow towards buying train tickets online._
+## What this repository demonstrates
 
-Solution: Milestones Strategy. 
+- Microservice-oriented backend architecture
+- Docker-based service packaging
+- Amazon ECR image publishing
+- Amazon EKS deployment
+- Kubernetes manifests and Ingress
+- Horizontal Pod Autoscaling (HPA)
+- Terraform-based AWS infrastructure
+- GitHub Actions CI/CD
+- AWS Parameter Store integration for application settings
+- Kubernetes secret management through CI/CD
+- Code-quality and security checks
+- SonarQube analysis
+- Bandit security scanning
+- Pylint quality checks
+- Prometheus/Grafana-oriented monitoring setup
+- Redis/ElastiCache-based caching
+- Load-testing and scalability work
 
-### Milestone 1 : System Design
-![System Design!](./project_images/System_Design.jpg)
+## Architecture
 
-### Milestone 2 : Implementation
+At a high level:
 
-*Backend-Service Implementation*:
+```text
+                    GitHub
+                       |
+                       v
+              GitHub Actions CI/CD
+                       |
+             +---------+---------+
+             |                   |
+             v                   v
+        Build Docker       Quality/Security
+          images              checks
+             |
+             v
+       Amazon ECR
+             |
+             v
+        Amazon EKS
+             |
+      +------+------+
+      |             |
+      v             v
+ Map Service   Management Service
+      |             |
+      +------+------+
+             |
+       Application data
+             |
+     +-------+--------+
+     |                |
+     v                v
+ PostgreSQL          Redis
+    (RDS)          (cache)
+```
 
-- Registration Service : Uses OTP to verify email, registers new users, generates access token on successful login and verifies it.
+The Kubernetes deployment also includes an NGINX Ingress controller exposed through an AWS network load balancer.
 
-- Ticket Service : Sends all trains and ticket classes lists for viewing, manages the train and ticket database.
+## Repository structure
 
-- Order Service : Locks the selected seats by user, initiates an ordering process, confirms the order on successful payment, and also releases seats if failed or expired.
+Important areas of the repository include:
 
-- Payment Service : Succeeds payment if lock is still available, otherwise not.
+```text
+.
+├── .github/
+│   ├── actions/
+│   │   ├── build-and-push/
+│   │   ├── deploy/
+│   │   └── manage-secrets/
+│   └── workflows/
+│       ├── development_pipeline.yaml
+│       └── development_test_pipeline.yaml
+│
+├── Smart-Dhaka-Terraform/
+│   └── aws/
+│       ├── environments/
+│       └── modules/
+│           ├── eks/
+│           ├── rds_postgresql/
+│           └── vpc/
+│
+├── deployment/
+│   └── k8s/
+│       └── menifests/
+│
+├── management/
+│   ├── models/
+│   ├── routes/
+│   └── package.json
+│
+└── README.md
+```
 
-*Inter Service Communication*: 
+## AWS infrastructure
 
-![image2!](./project_images/Microservice_communication.jpg) 
+Terraform is organized into reusable modules.
 
-*Dockerizing Microservices in AWS*
+### VPC
 
-*DockerFile:* Separate Dockerfile for each microservice to define the app environment.
+The development environment provisions a VPC with:
 
-*ECR (Elastic Container Registry):* Store Docker images in ECR.Maintain different ECR repositories for each microservice.
+- public subnets
+- private subnet configuration
+- Internet Gateway
+- NAT Gateway
+- multiple Availability Zones
 
-*CI/CD Pipeline:* Automate Docker image build and push to ECR using Github Action CI/CD.
+The configured development environment uses AWS region `ap-south-1`.
 
-*EKS Deployment:* Deploy microservices on EKS (Elastic Kubernetes Service) using the stored images.
+### Amazon EKS
 
-*Scaling:* Leverage Kubernetes HPA for dynamic scaling based on resource usage.
+The Terraform configuration provisions/configures an EKS cluster and its node group settings, including:
 
+- Kubernetes version
+- instance types
+- node capacity type
+- node storage
+- desired/minimum/maximum scaling
+- IAM access entries
+- EKS add-ons
+- security groups
 
+### Amazon RDS PostgreSQL
 
-*Horizontal Pod Autoscaler (HPA)*
-HPA monitors average CPU utilization of Pods and adjusts the number of replicas.
+The repository contains a reusable Terraform module for PostgreSQL RDS. The development environment currently has the RDS module commented out in `main.tf`, so it should be treated as infrastructure code available in the repository rather than an assertion that RDS is currently provisioned by that environment.
 
-*Target CPU Utilization:* Defined in the HPA *(e.g., 85%)*; HPA maintains CPU usage close to this target.
-Scaling Logic:
-- Scale Up: Adds Pods if CPU exceeds the target (e.g., CPU > 85%).
-- Scale Down: Removes Pods if CPU usage drops below the target.
+## CI/CD pipeline
 
-![image3!](./project_images/HPA_Autoscaling.png)
+The main development workflow runs on pushes to `main`.
 
-### Milestone 3 : DevOps Pipeline
+The pipeline contains separate stages for services, including:
 
-*Git Branching Strategy*
-![image4!](./project_images/git_branching_strategy.png)
+1. Checkout source
+2. Build Docker image
+3. Push image to Amazon ECR
+4. Prepare application secrets
+5. Deploy to the target EKS cluster
+6. Update the corresponding Kubernetes deployment
 
-*Security Testing*
-After running a Pull request ,  a security testing pipeline  is triggered and generate a report. 
-![image5!](./project_images/security_checking_report_generation.png)
+The repository uses reusable local GitHub Actions:
 
-*Code Quality Testing*
-Besides security testing, Code quality is also checked by Sonarqube.
-![image6!](./project_images/code_quality_checking_by_SonarQube.png)
+- `.github/actions/build-and-push`
+- `.github/actions/manage-secrets`
+- `.github/actions/deploy`
 
-*Pipeline Phase*
-- Build phase 
-- Kubernetes secrets generation
-- Deployment phase
+Images are versioned using the CI/CD configuration and deployed to Kubernetes using the corresponding service manifests.
 
-### Milestone 4 : Load Testing
-We run a python script for handling 1 lakh user request in this load testing challenge.
-![image7!](./project_images/user_loadtesting.png)
+## Secrets and configuration
 
-*AWS Elastic cache* (Redis instance) is used for memory cache.
+The CI/CD pipeline integrates with AWS configuration management and passes environment-specific values such as:
 
-After running thread, CPU utilization arises to nearly 300% without creating replica node by EKS.
-![image8!](./project_images/cpu_utilization.png)
+- AWS region
+- ECR repository
+- EKS cluster
+- Kubernetes namespace
+- service-specific Parameter Store paths
 
-_Other milestones cover by this project are_ : 
+Secrets are handled through GitHub Actions secrets rather than being embedded directly in the workflow.
 
-*IaC Tool (Terraform)* : Provisioned AWS services like : vpc, eks, rds_postgres etc in modular way.
-![image9!](./project_images/terraform.png)
+## Kubernetes
 
-*Service Monitoring* : 
-- Prometheus scrapes data from EKS cluster
-- Visualize with Grafana Dashboard
-- Show various metrics data 
-![image10!](./project_images/monitoring_tool.png)
+The `deployment/k8s/` directory contains Kubernetes deployment resources.
 
-*Zero downTime*:
-EKS itself manages Zero-downtime deployments through rolling updates, health checks, and traffic load management.
+The repository includes configuration for:
 
-- Rolling Updates: Gradually replaces old Pods with new ones, ensuring continuous service.
-- Readiness & Liveness Probes: Routes traffic only to healthy Pods; restarts unresponsive ones.
-- Load Balancing: Directs traffic to available, healthy Pods, preventing service interruptions.
-- HorizontalPodAutoscaler (HPA): Adjusts Pod replicas to handle traffic spikes, ensuring availability.
+- application services
+- Kubernetes Services
+- Ingress
+- NGINX Ingress Controller
+- AWS Load Balancer integration
+- RBAC
+- ServiceAccounts
+- readiness/liveness probes
+- rolling updates
+- resource requests
+- security contexts
+- metrics-server resources
 
-Slide Link : https://docs.google.com/presentation/d/1cpRpeR8MmdgUJ1bpeNmD9HxZgbEtlBsq4BcrPWyjzrY/edit#slide=id.g30e783951b2_0_0
+The NGINX Ingress controller is configured as an AWS LoadBalancer/NLB-facing component.
 
-### Run Production Branch!!!!!!!
+## Scaling and availability
+
+The project uses Kubernetes-oriented scaling and availability mechanisms.
+
+The documented architecture includes:
+
+- Horizontal Pod Autoscaling
+- rolling updates
+- readiness probes
+- liveness probes
+- load balancing
+- multiple EKS nodes
+- resource-based scaling
+
+These mechanisms are intended to allow the platform to respond to changing traffic while keeping healthy application instances available.
+
+## Security and code quality
+
+The repository contains a dedicated GitHub Actions workflow for automated quality/security checks.
+
+It runs:
+
+- **Bandit** for Python security analysis
+- **Pylint** for Python code-quality checks
+- **SonarQube** scanning
+
+The workflow generates a report and can publish quality information back to pull requests.
+
+## Monitoring and observability
+
+The project documentation and deployment materials include a monitoring approach based on:
+
+- Prometheus for metrics collection
+- Grafana for visualization
+- Kubernetes metrics-server resources
+
+This provides the foundation for observing cluster/application resource usage and evaluating scaling behavior.
+
+## Load testing
+
+The project includes load-testing work for high request volume and documents the effect of increased traffic on cluster resource utilization.
+
+Redis/ElastiCache is also used as a caching component in the documented architecture to reduce repeated data access and improve scalability.
+
+## Local development
+
+The backend contains Node.js services. For example, the management service uses:
+
+- Node.js
+- Express
+- MongoDB/Mongoose
+- JWT
+- bcrypt
+- Axios
+- dotenv
+- geolib
+
+A service can be developed locally using its own `package.json` and Node.js scripts.
+
+## Important files
+
+| Path | Purpose |
+|---|---|
+| `.github/workflows/development_pipeline.yaml` | Build, secret-management and EKS deployment workflow |
+| `.github/workflows/development_test_pipeline.yaml` | Security and code-quality pipeline |
+| `.github/actions/build-and-push/` | Reusable Docker/ECR build action |
+| `.github/actions/manage-secrets/` | Reusable secret/configuration action |
+| `.github/actions/deploy/` | Reusable Kubernetes deployment action |
+| `Smart-Dhaka-Terraform/aws/` | AWS infrastructure as code |
+| `Smart-Dhaka-Terraform/aws/modules/eks/` | EKS infrastructure module |
+| `Smart-Dhaka-Terraform/aws/modules/vpc/` | VPC infrastructure module |
+| `Smart-Dhaka-Terraform/aws/modules/rds_postgresql/` | PostgreSQL RDS module |
+| `deployment/k8s/` | Kubernetes deployment resources |
+| `management/` | Management backend service |
+
+## Technology stack
+
+**Application**
+
+- Node.js
+- Express
+- MongoDB
+- Mongoose
+- JWT
+- bcrypt
+
+**Cloud & Infrastructure**
+
+- AWS
+- Amazon EKS
+- Amazon ECR
+- Amazon RDS
+- Amazon ElastiCache/Redis
+- VPC
+- IAM
+
+**DevOps**
+
+- Docker
+- Kubernetes
+- Terraform
+- GitHub Actions
+- Bash/Shell
+
+**Quality & Observability**
+
+- SonarQube
+- Bandit
+- Pylint
+- Prometheus
+- Grafana
+
+## DevOps highlights
+
+This repository is particularly useful as a portfolio project because infrastructure is treated as part of the application rather than as a separate manual deployment step:
+
+```text
+Infrastructure
+    ↓
+Terraform
+    ↓
+AWS VPC + EKS
+    ↓
+Docker images
+    ↓
+Amazon ECR
+    ↓
+GitHub Actions
+    ↓
+Kubernetes deployment
+    ↓
+Ingress + Load Balancing
+    ↓
+Scaling + Monitoring
+```
+
+## Project context
+
+**Project:** Railway Ticket Management System  
+**Event:** BUET DevOps Hackathon 2024  
+**Team:** Ops Optimizers-DU
+
+The project was designed around handling high traffic for online railway-ticket purchasing while applying cloud-native deployment, automation, scaling, monitoring, and security practices.
+
+## Repository status
+
+This README describes the infrastructure and implementation currently present in the repository. Some infrastructure components exist as reusable modules but may be disabled/commented in a particular environment configuration; check the Terraform environment files before assuming a component is currently provisioned.
 
